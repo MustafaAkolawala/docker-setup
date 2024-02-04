@@ -18,32 +18,34 @@ user_role = """ Hello, please ask me about whether interested in a credit card o
 
 # Function to call the OpenAI API
 def chat_with_openai(messages):
+    
     response = openai.ChatCompletion.create(
         model="meta-llama/Llama-2-7b-chat-hf",
         messages=messages,
-        temperature=0.2
+        temperature=0.2,
+        max_tokens = 200
     )
     return response.choices[0].message['content'].strip()
 
 def lambda_handler(event, context):
-    name = event.get('name', '')  # Extracting 'name' parameter from event
+    name = event.get('name', '')  
 
-    # Initial system message to set the role of the assistant
+    
     messages = [
         {"role": "system", "content": system_role},
         {"role": "user", "content": user_role},
     ]
     assistant_role = f'Hello, I am James Bond, an AI calling from XYZ Bank. Am I talking to {name}?'
     messages.append({"role": "assistant", "content": assistant_role})
-    user_response = event.get('user_input', '')  # Extracting 'user_input' parameter from event
+    user_response = event.get('user_input', '') 
     messages.append({"role": "user", "content": user_response})
     assistant_response = chat_with_openai(messages)
 
-    # Assistant asks the user for their name and residence
+   
     while 'bye' not in assistant_response.lower():
         messages.append({"role": "assistant", "content": assistant_response})
-        user_response = event.get('user_input', '')  # Extracting 'user_input' parameter from event
+        user_response = event.get('user_input', '') 
         messages.append({"role": "user", "content": user_response})
         assistant_response = chat_with_openai(messages)
 
-    return assistant_response  # Returning response as the output of the Lambda function
+    return assistant_response  
